@@ -1,6 +1,7 @@
 # Cifrado y Análisis Combinatorio
 
-Pequeña aplicación en un solo archivo que demuestra un cifrado por sustitución usando una permutación completa del alfabeto (monoalfabético). Ideal para mostrar rápidamente en tu perfil o en un gist.
+Proyecto desarrollado para la Materia Matemáticas 2.
+Pequeña aplicación en un solo archivo que demuestra un cifrado por sustitución usando una permutación completa del alfabeto (monoalfabético). Ideal para mostrar rápidamente en tu perfil.
 
 Cómo usar
 1. Descarga o clona el repositorio.

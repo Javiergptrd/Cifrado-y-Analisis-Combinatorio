@@ -1,0 +1,192 @@
+import React, { useState, useEffect } from 'react';
+import { RefreshCw, Lock, Unlock, ArrowRight, ShieldCheck, Calculator } from 'lucide-react';
+
+export default function App() {
+  const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  
+  // Estado para la llave (la permutación del alfabeto)
+  const [keyMap, setKeyMap] = useState("");
+  const [inputText, setInputText] = useState("");
+  const [outputText, setOutputText] = useState("");
+  const [mode, setMode] = useState('encrypt'); // 'encrypt' o 'decrypt'
+
+  // Función para generar una permutación aleatoria (El corazón combinatorio)
+  const generateRandomKey = () => {
+    const arr = ALPHABET.split('');
+    // Algoritmo de Fisher-Yates para barajar (permutar)
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    setKeyMap(arr.join(''));
+  };
+
+  // Generar llave inicial al cargar
+  useEffect(() => {
+    generateRandomKey();
+  }, []);
+
+  // Función de Cifrado/Descifrado
+  useEffect(() => {
+    if (!keyMap) return;
+
+    const performCipher = () => {
+      let result = "";
+      const input = inputText.toUpperCase();
+
+      for (let i = 0; i < input.length; i++) {
+        const char = input[i];
+        const indexInAlpha = ALPHABET.indexOf(char);
+        const indexInKey = keyMap.indexOf(char);
+
+        if (mode === 'encrypt') {
+          // Lógica de Encriptación: Alfabeto Normal -> Llave Permutada
+          if (indexInAlpha !== -1) {
+            result += keyMap[indexInAlpha];
+          } else {
+            result += char; // Mantener espacios y símbolos
+          }
+        } else {
+          // Lógica de Desencriptación: Llave Permutada -> Alfabeto Normal
+          if (indexInKey !== -1) {
+            result += ALPHABET[indexInKey];
+          } else {
+            result += char;
+          }
+        }
+      }
+      setOutputText(result);
+    };
+
+    performCipher();
+  }, [inputText, keyMap, mode]);
+
+  return (
+    <div className="min-h-screen bg-slate-900 text-slate-100 p-4 md:p-8 font-sans">
+      <div className="max-w-4xl mx-auto space-y-8">
+        
+        {/* Header */}
+        <header className="text-center space-y-2 border-b border-slate-700 pb-6">
+          <h1 className="text-3xl md:text-4xl font-bold text-blue-400 flex items-center justify-center gap-3">
+            <ShieldCheck size={40} />
+            Cripto-Combinatoria
+          </h1>
+          <p className="text-slate-400">
+            Aplicación del Análisis Combinatorio en Seguridad Informática
+          </p>
+        </header>
+
+        {/* Sección de Explicación Matemática (Para tu clase) */}
+        <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-lg">
+          <h2 className="text-xl font-bold text-green-400 mb-4 flex items-center gap-2">
+            <Calculator size={24} />
+            La Matemática Detrás (El Principio de Permutación)
+          </h2>
+          <div className="text-sm text-slate-300 space-y-3">
+            <p>
+              En este sistema, la "llave" es una <strong>Permutación</strong> completa del alfabeto de 26 letras.
+              El análisis combinatorio nos dice cuántas claves posibles existen:
+            </p>
+            <div className="bg-slate-900 p-3 rounded font-mono text-center text-yellow-400">
+              P<sub>26</sub> = 26! (26 Factorial)
+            </div>
+            <p>
+              $$26! = 26 \times 25 \times 24 \times \dots \times 1 \approx 4.03 \times 10^{26}$$
+            </p>
+            <p>
+              ¡Eso es un 4 seguido de 26 ceros! Una computadora tardaría millones de años en probar todas las combinaciones (fuerza bruta).
+              Aquí aplicamos la combinatoria para asegurar el <strong>Espacio de Claves</strong>.
+            </p>
+          </div>
+        </div>
+
+        {/* Panel de Control de la Llave */}
+        <div className="bg-slate-800 p-6 rounded-xl border border-blue-900/50 shadow-lg">
+          <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
+            <h3 className="text-lg font-semibold text-blue-300">Llave de Cifrado Actual (Permutación)</h3>
+            <button 
+              onClick={generateRandomKey}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg flex items-center gap-2 transition-colors text-sm font-bold"
+            >
+              <RefreshCw size={16} /> Generar Nueva Llave Aleatoria
+            </button>
+          </div>
+          
+          {/* Visualización del Mapeo */}
+          <div className="overflow-x-auto pb-2">
+            <div className="flex flex-nowrap gap-1 min-w-max font-mono text-sm">
+              {ALPHABET.split('').map((char, index) => (
+                <div key={index} className="flex flex-col items-center bg-slate-700 p-2 rounded w-8">
+                  <span className="text-slate-400 mb-1">{char}</span>
+                  <span className="text-slate-500 text-xs">↓</span>
+                  <span className="text-green-400 font-bold">{keyMap[index]}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Área de Trabajo (Encriptar/Desencriptar) */}
+        <div className="grid md:grid-cols-2 gap-6">
+          
+          {/* Columna Entrada */}
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <label className="text-slate-300 font-medium">Texto de Entrada</label>
+              <div className="flex bg-slate-700 rounded-lg p-1">
+                <button
+                  onClick={() => setMode('encrypt')}
+                  className={`px-3 py-1 rounded text-sm flex items-center gap-1 ${mode === 'encrypt' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                >
+                  <Lock size={14} /> Encriptar
+                </button>
+                <button
+                  onClick={() => setMode('decrypt')}
+                  className={`px-3 py-1 rounded text-sm flex items-center gap-1 ${mode === 'decrypt' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                >
+                  <Unlock size={14} /> Desencriptar
+                </button>
+              </div>
+            </div>
+            <textarea
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              placeholder={mode === 'encrypt' ? "Escribe el mensaje secreto aquí..." : "Pega el código cifrado aquí..."}
+              className="w-full h-40 bg-slate-800 border-2 border-slate-600 rounded-xl p-4 text-lg focus:border-blue-500 focus:outline-none transition-colors resize-none font-mono"
+            />
+          </div>
+
+          {/* Columna Salida */}
+          <div className="space-y-4">
+            <label className="text-slate-300 font-medium flex items-center gap-2">
+              Resultado 
+              <ArrowRight size={16} className="text-slate-500" />
+            </label>
+            <div className="w-full h-40 bg-black/40 border border-slate-700 rounded-xl p-4 relative group">
+              <div className="font-mono text-lg break-words text-green-400">
+                {outputText || <span className="text-slate-600 italic">El resultado aparecerá aquí...</span>}
+              </div>
+              {outputText && (
+                 <button 
+                 onClick={() => navigator.clipboard.writeText(outputText)}
+                 className="absolute top-2 right-2 p-2 bg-slate-700 text-slate-300 rounded hover:bg-slate-600 opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+               >
+                 Copiar
+               </button>
+              )}
+            </div>
+            
+            {/* Pequeña nota explicativa */}
+            <div className="bg-blue-900/20 border border-blue-900/50 p-3 rounded-lg text-xs text-blue-200">
+              <span className="font-bold">Nota de lógica:</span> 
+              {mode === 'encrypt' 
+                ? " Cada letra original se sustituye por su par en la permutación actual." 
+                : " Se busca la letra en la permutación y se devuelve su posición original en el alfabeto."}
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+}
